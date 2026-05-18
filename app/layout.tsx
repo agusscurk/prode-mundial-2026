@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-    title: "?? PRODE Mundial 2026",
+    title: "🏆 PRODE Mundial 2026",
     description: "Predice los partidos del Mundial y compite en familia",
 };
 

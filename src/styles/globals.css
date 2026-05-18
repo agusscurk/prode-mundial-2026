@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+:root {
+	--color-grass: #22c55e;
+	--color-grass-dark: #16a34a;
+	--color-sky: #0ea5e9;
+	--color-white: #ffffff;
+	--color-gray: #9ca3af;
+	--color-black: #000000;
+	--color-accent: #fbbf24;
+	--color-danger: #ef4444;
+	font-family: 'Press Start 2P', cursive;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+body {
+	background-color: var(--color-grass);
+	color: var(--color-black);
+	overflow-x: hidden;
+}
+
+.pixel-border {
+	border: 3px solid var(--color-black);
+	box-shadow: 5px 5px 0 rgba(0,0,0,0.3), -1px -1px 0 rgba(255,255,255,0.5) inset;
+}
+
+.pixel-button {
+	padding: 12px 24px;
+	background-color: var(--color-gray);
+	border: 3px solid var(--color-black);
+	font-family: 'Press Start 2P', cursive;
+	font-size: 12px;
+	cursor: pointer;
+	transition: all 0.1s;
+}
+
+	.pixel-button:hover {
+		transform: translate(2px, 2px);
+		box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+	}
+
+	.pixel-button:active {
+		transform: translate(4px, 4px);
+	}
+
+.scoreboard {
+	background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+	border: 3px solid var(--color-black);
+	padding: 16px;
+	margin: 16px 0;
+}
+
+.score-display {
+	font-size: 32px;
+	color: #fbbf24;
+	text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+	font-variant-numeric: tabular-nums;
+}
