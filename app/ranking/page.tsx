@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -30,7 +32,7 @@ export default function RankingPage() {
         try {
             const { data, error } = await supabase.from('users').select('id,name,total_points').order('total_points', { ascending: false });
             if (error) throw error;
-            const ranked = (data || []).map((u, index) => ({ ...u, rank: index + 1 }));
+            const ranked = (data || []).map((u: any, index: number) => ({ ...u, rank: index + 1 }));
             setUsers(ranked);
         } catch (err) {
             console.error('Error:', err);
