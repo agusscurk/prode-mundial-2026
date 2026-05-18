@@ -51,7 +51,7 @@ export default function HomePage() {
     };
 
     const handleChange = (matchId: string, team: string, value: string) => {
-        setPredictions(prev => ({ ...prev, [matchId]: { ...prev[matchId], [team]: parseInt(value) || 0 } }));
+        setPredictions((prev: any) => ({ ...prev, [matchId]: { ...prev[matchId], [team]: parseInt(value) || 0 } }));
     };
 
     const savePrediction = async (match: Match) => {
