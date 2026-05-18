@@ -31,7 +31,7 @@ export default function AdminPage() {
             if (error) throw error;
             setMatches(data || []);
             const initialResults: any = {};
-            (data || []).forEach(m => {
+            (data || []).forEach((m: any) => {
                 initialResults[m.id] = { home: m.actual_home_goals || 0, away: m.actual_away_goals || 0 };
             });
             setResults(initialResults);
@@ -43,7 +43,7 @@ export default function AdminPage() {
     };
 
     const handleResultChange = (matchId: string, team: string, value: string) => {
-        setResults(prev => ({ ...prev, [matchId]: { ...prev[matchId], [team]: parseInt(value) || 0 } }));
+        setResults((prev: any) => ({ ...prev, [matchId]: { ...prev[matchId], [team]: parseInt(value) || 0 } }));
     };
 
     const saveResult = async (match: Match) => {
@@ -85,7 +85,7 @@ export default function AdminPage() {
                 await supabase.from('predictions').update({ points_awarded: points, is_correct: isCorrect, is_exact_score: isExact }).eq('id', pred.id);
 
                 const { data: userPreds } = await supabase.from('predictions').select('points_awarded').eq('user_id', pred.user_id);
-                const totalPoints = (userPreds || []).reduce((sum, p) => sum + (p.points_awarded || 0), 0);
+                const totalPoints = (userPreds || []).reduce((sum: number, p: any) => sum + (p.points_awarded || 0), 0);
                 await supabase.from('users').update({ total_points: totalPoints }).eq('id', pred.user_id);
             }
         } catch (err) {
