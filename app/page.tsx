@@ -2,19 +2,17 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
 
 export default function Home() {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const checkUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user);
-            setLoading(false);
-        };
-        checkUser();
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+        setLoading(false);
     }, []);
 
     return (
@@ -39,19 +37,67 @@ export default function Home() {
             <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
                 {!user ? (
                     <>
-                        <Link href="/login" className="pixel-button">
+                        <Link href="/login" style={{
+                            padding: '12px 24px',
+                            backgroundColor: '#9ca3af',
+                            border: '3px solid #000',
+                            fontFamily: "'Press Start 2P', cursive",
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            textDecoration: 'none',
+                            color: '#000',
+                            display: 'inline-block',
+                            transition: 'all 0.1s',
+                        }}
+                            onMouseOver={(e) => (e.currentTarget.style.transform = 'translate(2px, 2px)')}
+                            onMouseOut={(e) => (e.currentTarget.style.transform = 'translate(0, 0)')}
+                        >
                             INGRESAR
                         </Link>
-                        <button className="pixel-button" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+                        <Link href="/register" style={{
+                            padding: '12px 24px',
+                            backgroundColor: '#9ca3af',
+                            border: '3px solid #000',
+                            fontFamily: "'Press Start 2P', cursive",
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            textDecoration: 'none',
+                            color: '#000',
+                            display: 'inline-block',
+                            transition: 'all 0.1s',
+                        }}
+                            onMouseOver={(e) => (e.currentTarget.style.transform = 'translate(2px, 2px)')}
+                            onMouseOut={(e) => (e.currentTarget.style.transform = 'translate(0, 0)')}
+                        >
                             REGISTRO
-                        </button>
+                        </Link>
                     </>
                 ) : (
                     <>
-                        <Link href="/home" className="pixel-button">
+                        <Link href="/home" style={{
+                            padding: '12px 24px',
+                            backgroundColor: '#9ca3af',
+                            border: '3px solid #000',
+                            fontFamily: "'Press Start 2P', cursive",
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            textDecoration: 'none',
+                            color: '#000',
+                            display: 'inline-block',
+                        }}>
                             MIS PREDICCIONES
                         </Link>
-                        <Link href="/ranking" className="pixel-button">
+                        <Link href="/ranking" style={{
+                            padding: '12px 24px',
+                            backgroundColor: '#9ca3af',
+                            border: '3px solid #000',
+                            fontFamily: "'Press Start 2P', cursive",
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            textDecoration: 'none',
+                            color: '#000',
+                            display: 'inline-block',
+                        }}>
                             RANKING
                         </Link>
                     </>
