@@ -1,7 +1,10 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
 interface Match {
@@ -15,15 +18,36 @@ interface Match {
 }
 
 export default function AdminPage() {
+    const [authenticated, setAuthenticated] = useState(false);
+    const [password, setPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const [matches, setMatches] = useState<Match[]>([]);
     const [results, setResults] = useState<any>({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const router = useRouter();
 
+    const ADMIN_PASSWORD = 'putoelquelee';
+
     useEffect(() => {
-        loadMatches();
-    }, []);
+        if (authenticated) {
+            loadMatches();
+        } else {
+            setLoading(false);
+        }
+    }, [authenticated]);
+
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (password === ADMIN_PASSWORD) {
+            setAuthenticated(true);
+            setPassword('');
+            setPasswordError('');
+        } else {
+            setPasswordError('Contraseña incorrecta');
+            setPassword('');
+        }
+    };
 
     const loadMatches = async () => {
         try {
@@ -97,9 +121,39 @@ export default function AdminPage() {
         return <div style={{ backgroundColor: '#22c55e', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p>Cargando...</p></div>;
     }
 
+    if (!authenticated) {
+        return (
+            <div style={{ backgroundColor: '#22c55e', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                <div style={{ backgroundColor: '#9ca3af', border: '3px solid black', padding: '30px', maxWidth: '400px', width: '100%', boxShadow: '5px 5px 0 rgba(0,0,0,0.3)' }}>
+                    <h1 style={{ fontSize: '20px', color: 'black', marginBottom: '20px', textAlign: 'center' }}>ADMIN - ACCESO</h1>
+                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <div>
+                            <label style={{ fontSize: '12px', display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>CONTRASEÑA:</label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                style={{ width: '100%', padding: '10px', border: '2px solid black', fontSize: '14px', boxSizing: 'border-box' }}
+                                placeholder="Ingresa contraseña"
+                            />
+                        </div>
+                        {passwordError && <div style={{ color: '#ef4444', fontSize: '12px', fontWeight: 'bold' }}>{passwordError}</div>}
+                        <button type="submit" style={{ padding: '12px', backgroundColor: '#22c55e', border: '3px solid black', fontSize: '14px', cursor: 'pointer', fontWeight: 'bold' }}>ENTRAR</button>
+                    </form>
+                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                        <Link href="/" style={{ fontSize: '12px', color: 'black', textDecoration: 'none', textDecorationLine: 'underline' }}>Volver a inicio</Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div style={{ backgroundColor: '#22c55e', minHeight: '100vh', padding: '20px' }}>
-            <h1 style={{ fontSize: '20px', color: 'black', marginBottom: '30px' }}>ADMIN - CARGAR RESULTADOS</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', borderBottom: '3px solid black', paddingBottom: '15px' }}>
+                <h1 style={{ fontSize: '20px', color: 'black' }}>ADMIN - CARGAR RESULTADOS</h1>
+                <button onClick={() => setAuthenticated(false)} style={{ padding: '8px 16px', backgroundColor: '#ef4444', border: '2px solid black', fontSize: '10px', cursor: 'pointer', color: 'white' }}>SALIR</button>
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
                 {matches.map((match) => (

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
 interface User {
@@ -50,12 +51,23 @@ export default function HomePage() {
         }
     };
 
+    const isMatchLocked = (scheduledTime: string) => {
+        const matchTime = new Date(scheduledTime).getTime();
+        const oneHourBefore = matchTime - 60 * 60 * 1000;
+        const now = new Date().getTime();
+        return now >= oneHourBefore;
+    };
+
     const handleChange = (matchId: string, team: string, value: string) => {
         setPredictions((prev: any) => ({ ...prev, [matchId]: { ...prev[matchId], [team]: parseInt(value) || 0 } }));
     };
 
     const savePrediction = async (match: Match) => {
         if (!user) return;
+        if (isMatchLocked(match.scheduled_time)) {
+            alert('No puedes modificar tu predicción 1 hora antes del partido');
+            return;
+        }
         setSaving(true);
         try {
             const pred = predictions[match.id] || { home: 0, away: 0 };
@@ -85,34 +97,42 @@ export default function HomePage() {
                 <h1 style={{ fontSize: '20px', color: 'black' }}>PRODE 2026</h1>
                 <div style={{ textAlign: 'right' }}>
                     <p style={{ fontSize: '12px', marginBottom: '5px' }}>Hola, {user?.name}</p>
-                    <button onClick={handleLogout} style={{ padding: '8px 16px', backgroundColor: '#ef4444', border: '2px solid black', fontSize: '10px', cursor: 'pointer', color: 'white' }}>SALIR</button>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <Link href="/ranking" style={{ padding: '8px 16px', backgroundColor: '#9ca3af', border: '2px solid black', fontSize: '10px', cursor: 'pointer', color: 'black', textDecoration: 'none', fontWeight: 'bold' }}>RANKING</Link>
+                        <Link href="/admin" style={{ padding: '8px 16px', backgroundColor: '#9ca3af', border: '2px solid black', fontSize: '10px', cursor: 'pointer', color: 'black', textDecoration: 'none', fontWeight: 'bold' }}>ADMIN</Link>
+                        <button onClick={handleLogout} style={{ padding: '8px 16px', backgroundColor: '#ef4444', border: '2px solid black', fontSize: '10px', cursor: 'pointer', color: 'white' }}>SALIR</button>
+                    </div>
                 </div>
             </div>
 
             <h2 style={{ fontSize: '16px', marginBottom: '20px', color: 'black' }}>FASE DE GRUPOS</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
-                {matches.map((match) => (
-                    <div key={match.id} style={{ backgroundColor: '#9ca3af', border: '3px solid black', padding: '15px', boxShadow: '5px 5px 0 rgba(0,0,0,0.3)' }}>
-                        <div style={{ textAlign: 'center', marginBottom: '10px', fontSize: '10px', color: '#666' }}>Partido {match.match_number}</div>
-                        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', marginBottom: '15px', fontSize: '14px' }}>
-                            <div style={{ textAlign: 'center' }}><p>{match.home_team}</p></div>
-                            <div style={{ fontSize: '12px', color: '#666' }}>vs</div>
-                            <div style={{ textAlign: 'center' }}><p>{match.away_team}</p></div>
+                {matches.map((match) => {
+                    const locked = isMatchLocked(match.scheduled_time);
+                    return (
+                        <div key={match.id} style={{ backgroundColor: locked ? '#ccc' : '#9ca3af', border: '3px solid black', padding: '15px', boxShadow: '5px 5px 0 rgba(0,0,0,0.3)', opacity: locked ? 0.6 : 1 }}>
+                            <div style={{ textAlign: 'center', marginBottom: '10px', fontSize: '10px', color: '#666' }}>Partido {match.match_number}</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', marginBottom: '15px', fontSize: '14px' }}>
+                                <div style={{ textAlign: 'center' }}><p>{match.home_team}</p></div>
+                                <div style={{ fontSize: '12px', color: '#666' }}>vs</div>
+                                <div style={{ textAlign: 'center' }}><p>{match.away_team}</p></div>
+                            </div>
+                            <div style={{ backgroundColor: '#2d3748', border: '2px solid black', padding: '10px', marginBottom: '15px', textAlign: 'center', color: '#fbbf24', fontSize: '12px' }}>
+                                {new Date(match.scheduled_time).toLocaleString('es-AR')}
+                            </div>
+                            {locked && <div style={{ backgroundColor: '#ff6b6b', color: 'white', padding: '8px', marginBottom: '10px', fontSize: '10px', textAlign: 'center', fontWeight: 'bold' }}>PARTIDO CERRADO</div>}
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                <input type="number" min="0" placeholder="0" disabled={locked} value={predictions[match.id]?.home || ''} onChange={(e) => handleChange(match.id, 'home', e.target.value)} style={{ flex: 1, padding: '8px', border: '2px solid black', textAlign: 'center', fontSize: '12px', opacity: locked ? 0.5 : 1 }} />
+                                <span style={{ display: 'flex', alignItems: 'center', fontSize: '14px' }}>-</span>
+                                <input type="number" min="0" placeholder="0" disabled={locked} value={predictions[match.id]?.away || ''} onChange={(e) => handleChange(match.id, 'away', e.target.value)} style={{ flex: 1, padding: '8px', border: '2px solid black', textAlign: 'center', fontSize: '12px', opacity: locked ? 0.5 : 1 }} />
+                            </div>
+                            <button onClick={() => savePrediction(match)} disabled={saving || locked} style={{ width: '100%', padding: '10px', backgroundColor: locked ? '#ccc' : '#22c55e', border: '3px solid black', fontSize: '11px', cursor: locked ? 'not-allowed' : saving ? 'not-allowed' : 'pointer', fontWeight: 'bold', opacity: saving || locked ? 0.6 : 1 }}>
+                                {locked ? 'PARTIDO CERRADO' : saving ? 'GUARDANDO...' : 'GUARDAR'}
+                            </button>
                         </div>
-                        <div style={{ backgroundColor: '#2d3748', border: '2px solid black', padding: '10px', marginBottom: '15px', textAlign: 'center', color: '#fbbf24', fontSize: '12px' }}>
-                            {new Date(match.scheduled_time).toLocaleString()}
-                        </div>
-                        <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                            <input type="number" min="0" placeholder="0" value={predictions[match.id]?.home || ''} onChange={(e) => handleChange(match.id, 'home', e.target.value)} style={{ flex: 1, padding: '8px', border: '2px solid black', textAlign: 'center', fontSize: '12px' }} />
-                            <span style={{ display: 'flex', alignItems: 'center', fontSize: '14px' }}>-</span>
-                            <input type="number" min="0" placeholder="0" value={predictions[match.id]?.away || ''} onChange={(e) => handleChange(match.id, 'away', e.target.value)} style={{ flex: 1, padding: '8px', border: '2px solid black', textAlign: 'center', fontSize: '12px' }} />
-                        </div>
-                        <button onClick={() => savePrediction(match)} disabled={saving} style={{ width: '100%', padding: '10px', backgroundColor: '#22c55e', border: '3px solid black', fontSize: '11px', cursor: saving ? 'not-allowed' : 'pointer', fontWeight: 'bold', opacity: saving ? 0.6 : 1 }}>
-                            {saving ? 'GUARDANDO...' : 'GUARDAR'}
-                        </button>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
